@@ -4,7 +4,7 @@ import fsp from "node:fs/promises";
 
 const configured = path.resolve(process.env.WORKSPACE_ROOT ?? "./workspace");
 fs.mkdirSync(configured, { recursive: true });
-export const ROOT = fs.realpathSync(configured);
+export const ROOT = fs.realpathSync.native(configured);
 
 const inside = (p: string) => p === ROOT || p.startsWith(ROOT + path.sep);
 
