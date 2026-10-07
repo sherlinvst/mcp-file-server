@@ -121,7 +121,7 @@ Revisit if: <condition>
 --- ENTRIES BELOW ---
 `,
 
-  ".gitignore": "__pycache__/\n.pytest_cache/\n*.pyc\n",
+  ".gitignore": "__pycache__/\n*.pyc\n.pytest_cache/\n*.egg-info/\n.venv/\nvenv/\nnotes.json\n.DS_Store\nThumbs.db\n",
 };
 
 
