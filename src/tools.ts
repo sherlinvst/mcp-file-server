@@ -6,7 +6,14 @@ import { resolveSafe, toRel, ROOT } from "./sandbox.js";
 import { git } from "./git.js";
 
 const MAX_BYTES = 1_000_000;
-const HANDOFF = new Set(["PROJECT_STATE.md", "PLAN_LOG.md", "CHECKPOINTS.md", "DECISIONS.md"]);
+
+const HANDOFF = new Set(
+  ["PROJECT_STATE.md", "PLAN_LOG.md", "CHECKPOINTS.md", "DECISIONS.md"].map((n) => n.toLowerCase())
+);
+
+const APPEND_ONLY = new Set(
+  ["PLAN_LOG.md", "CHECKPOINTS.md", "DECISIONS.md"].map((n) => n.toLowerCase())
+);
 
 const ok = (text: string) => ({ content: [{ type: "text" as const, text }] });
 const fail = (e: unknown) => ({
@@ -14,21 +21,39 @@ const fail = (e: unknown) => ({
   content: [{ type: "text" as const, text: e instanceof Error ? e.message : String(e) }],
 });
 
-const inGit = (abs: string) => toRel(abs).split(path.sep)[0] === ".git";
-const assertWritable = (abs: string) => {
+
+const canon = (abs: string) =>
+  toRel(abs)
+    .split(path.sep)
+    .map((seg) => seg.split(":")[0].replace(/[. ]+$/, "").toLowerCase())
+    .join("/");
+
+const inGit = (abs: string) => canon(abs).split("/")[0] === ".git";
+
+const blockGit = (abs: string) => {
   if (inGit(abs)) throw new Error("Access to .git is not allowed");
 };
+
+const blockAppendOnly = (abs: string) => {
+  if (APPEND_ONLY.has(canon(abs))) {
+    throw new Error("Append-only file: use append_file instead");
+  }
+};
+
+const isHandoff = (abs: string) => HANDOFF.has(canon(abs));
 
 export function registerTools(server: McpServer) {
   // 1. list_files
   server.registerTool("list_files", {
-    description: "List files and folders at a path inside the workspace. Folders end with '/'.",
-    inputSchema: { path: z.string().default(".").describe("Relative path, e.g. 'src'") },
+    description: "List files and folders at a path inside the workspace. Folders end with '/'. Paths are relative to the workspace root; use '.' for the root.",
+    inputSchema: { path: z.string().default(".").describe("Relative path, e.g. 'notes' or '.'") },
   }, async ({ path: p }) => {
     try {
       const abs = await resolveSafe(p);
+      blockGit(abs);
       const entries = await fsp.readdir(abs, { withFileTypes: true });
-      const lines = entries.filter((e) => e.name !== ".git")
+      const lines = entries
+        .filter((e) => e.name.toLowerCase() !== ".git")
         .map((e) => (e.isDirectory() ? `${e.name}/` : e.name));
       return ok(lines.join("\n") || "(empty)");
     } catch (e) { return fail(e); }
@@ -36,7 +61,7 @@ export function registerTools(server: McpServer) {
 
   // 2. read_file
   server.registerTool("read_file", {
-    description: "Read a UTF-8 text file. Optional start/end line (1-indexed) to read part of a file.",
+    description: "Read a UTF-8 text file inside the workspace. Optional start/end line (1-indexed) to read part of a file. Files over 1 MB are refused.",
     inputSchema: {
       path: z.string(),
       start: z.number().int().min(1).optional(),
@@ -45,6 +70,7 @@ export function registerTools(server: McpServer) {
   }, async ({ path: p, start, end }) => {
     try {
       const abs = await resolveSafe(p);
+      blockGit(abs);
       const st = await fsp.stat(abs);
       if (st.size > MAX_BYTES) throw new Error(`File too large (${st.size} bytes)`);
       let text = await fsp.readFile(abs, "utf8");
@@ -58,12 +84,13 @@ export function registerTools(server: McpServer) {
 
   // 3. write_file
   server.registerTool("write_file", {
-    description: "Create or overwrite a text file (parent folders are created). Prefer str_replace for editing existing files.",
+    description: "Create or overwrite a text file (parent folders are created). Prefer str_replace for editing existing files. Cannot be used on PLAN_LOG.md, CHECKPOINTS.md or DECISIONS.md: use append_file for those.",
     inputSchema: { path: z.string(), content: z.string().max(MAX_BYTES) },
   }, async ({ path: p, content }) => {
     try {
       const abs = await resolveSafe(p);
-      assertWritable(abs);
+      blockGit(abs);
+      blockAppendOnly(abs);
       await fsp.mkdir(path.dirname(abs), { recursive: true });
       await fsp.writeFile(abs, content, "utf8");
       return ok(`Wrote ${content.length} chars to ${toRel(abs)}`);
@@ -72,12 +99,13 @@ export function registerTools(server: McpServer) {
 
   // 4. str_replace
   server.registerTool("str_replace", {
-    description: "Replace exactly one occurrence of old_str with new_str in a file. Fails if old_str is missing or appears more than once (add more surrounding context).",
+    description: "Replace exactly one occurrence of old_str with new_str in a file. Fails if old_str is missing or appears more than once (add more surrounding context). Cannot be used on PLAN_LOG.md, CHECKPOINTS.md or DECISIONS.md: use append_file for those.",
     inputSchema: { path: z.string(), old_str: z.string().min(1), new_str: z.string() },
   }, async ({ path: p, old_str, new_str }) => {
     try {
       const abs = await resolveSafe(p);
-      assertWritable(abs);
+      blockGit(abs);
+      blockAppendOnly(abs);
       const text = await fsp.readFile(abs, "utf8");
       const count = text.split(old_str).length - 1;
       if (count === 0) throw new Error("old_str not found");
@@ -95,8 +123,8 @@ export function registerTools(server: McpServer) {
     try {
       const abs = await resolveSafe(p);
       if (abs === ROOT) throw new Error("Cannot delete the workspace root");
-      assertWritable(abs);
-      if (HANDOFF.has(toRel(abs))) throw new Error("Protected handoff file: cannot delete");
+      blockGit(abs);
+      if (isHandoff(abs)) throw new Error("Protected handoff file: cannot delete");
       const st = await fsp.stat(abs);
       if (!st.isFile()) throw new Error("Only files can be deleted");
       await fsp.unlink(abs);
@@ -111,7 +139,7 @@ export function registerTools(server: McpServer) {
   }, async ({ path: p, content }) => {
     try {
       const abs = await resolveSafe(p);
-      assertWritable(abs);
+      blockGit(abs);
       await fsp.mkdir(path.dirname(abs), { recursive: true });
       await fsp.appendFile(abs, content.endsWith("\n") ? content : content + "\n", "utf8");
       return ok(`Appended to ${toRel(abs)}`);
@@ -129,7 +157,7 @@ export function registerTools(server: McpServer) {
 
   // 8. git_commit
   server.registerTool("git_commit", {
-    description: "Stage ALL changes and create a commit (a checkpoint). Requires a clear message.",
+    description: "Stage ALL changes (including stray or scratch files) and create a commit (a checkpoint). Requires a clear message. Check git_status first and delete files that should not be committed.",
     inputSchema: { message: z.string().min(3).max(200) },
   }, async ({ message }) => {
     try {
