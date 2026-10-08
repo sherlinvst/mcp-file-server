@@ -1,0 +1,114 @@
+﻿commit 3ddb4b07c004a392420043b48fb87bcbf5be281c
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 16:54:24 2026 +0800
+
+    chore: stop tracking notes.json (runtime data)
+
+ .gitignore | 11 ++++++++++-
+ notes.json |  9 ---------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+commit 4a09245406913b9b23b883e94e3fbaadb778e8bc
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 16:49:00 2026 +0800
+
+    Delete test_commit file
+
+ test_commit | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 17b756426e2c79a01525376acc0de85bf23d9b1e
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 16:44:17 2026 +0800
+
+    S4 end: checkpoint CP-004 and updated PROJECT_STATE
+
+ CHECKPOINTS.md   | 16 ++++++++++++++++
+ PROJECT_STATE.md | 39 ++++++++++++++++++++-------------------
+ 2 files changed, 36 insertions(+), 19 deletions(-)
+
+commit d9d1514b50f2293140e214c52115d3f403c97e74
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 16:43:58 2026 +0800
+
+    S4: save CP-003 and S4 log entries (search/delete still unrun)
+
+ CHECKPOINTS.md | 19 +++++++++++++++++++
+ PLAN_LOG.md    | 12 ++++++++++++
+ 2 files changed, 31 insertions(+)
+
+commit c9ff5b4529e7d7234f76e8f6c0af420082b1e6bd
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 09:14:22 2026 +0800
+
+    S3: add search and delete with tests, write README (new code not yet run)
+
+ DECISIONS.md        | 10 ++++++++
+ PLAN_LOG.md         | 31 ++++++++++++++++++++++
+ README.md           | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ notes/cli.py        | 21 +++++++++++++++
+ notes/storage.py    | 20 +++++++++++++++
+ tests/test_notes.py | 67 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 223 insertions(+)
+
+commit 438724251a6f9ea221ea2c46807c586466bfe4d6
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 09:13:22 2026 +0800
+
+    S3: delete scratch files src and write_test.txt, record D-003 (repo identity)
+
+ DECISIONS.md   |  8 ++++++++
+ PLAN_LOG.md    | 24 ++++++++++++++++++++++++
+ notes.json     |  9 +++++++++
+ src            |  1 -
+ write_test.txt |  1 -
+ 5 files changed, 41 insertions(+), 2 deletions(-)
+
+commit 5161c4b5b63c961c5ec9689bd797df41953e22bf
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 08:54:05 2026 +0800
+
+    test commit
+
+ test_commit | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 66ca6e6f221c9df5f2e07f906290fcb8d6e84195
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 08:40:21 2026 +0800
+
+    S2 end: checkpoint CP-002 and updated PROJECT_STATE
+
+ CHECKPOINTS.md   | 19 +++++++++++++++++++
+ PROJECT_STATE.md | 26 ++++++++++++++------------
+ 2 files changed, 33 insertions(+), 12 deletions(-)
+
+commit d87c39e5b52a3ee6ae55eda96b02a7f6a260ad2a
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 08:40:08 2026 +0800
+
+    S2: log commit-blocker resolution in PLAN_LOG
+
+ PLAN_LOG.md | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+commit 9b6f041dc8f6296d79639f9ab9f54efd5423e662
+Author: mcp-agent <agent@localhost>
+Date:   Wed Oct 7 08:39:56 2026 +0800
+
+    S2: commit S1 scaffold (notes package with add/list, tests, handoff files) - untested
+
+ .gitignore          |  3 ++
+ CHECKPOINTS.md      | 41 ++++++++++++++++++++++++++
+ DECISIONS.md        | 39 +++++++++++++++++++++++++
+ HANDOFF_PROTOCOL.md | 39 +++++++++++++++++++++++++
+ PLAN_LOG.md         | 84 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ PROJECT_STATE.md    | 40 +++++++++++++++++++++++++
+ notes/__init__.py   |  1 +
+ notes/__main__.py   |  5 ++++
+ notes/cli.py        | 39 +++++++++++++++++++++++++
+ notes/storage.py    | 35 ++++++++++++++++++++++
+ src                 |  1 +
+ tests/test_notes.py | 45 ++++++++++++++++++++++++++++
+ write_test.txt      |  1 +
+ 13 files changed, 373 insertions(+)
