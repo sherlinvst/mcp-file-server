@@ -23,6 +23,10 @@ History lives in PLAN_LOG.md, CHECKPOINTS.md and DECISIONS.md.
 - Status: not started
 - Last updated by: human (seed)
 - Current session: none yet
+- Session plan (roles are defined in HANDOFF_PROTOCOL.md):
+  - S1 Builder: plan, scaffold notes/ and tests/, implement add and list with tests. Ask the human to run pytest.
+  - S2 Builder: fix any test failures the human reports, implement search and delete with tests, write README.md.
+  - S3 Reviewer: read-only review of code, tests and logs. Append findings to the logs. Do not edit code.
 - Done: (nothing yet)
 - In progress: (nothing yet)
 - Next steps:
@@ -31,7 +35,6 @@ History lives in PLAN_LOG.md, CHECKPOINTS.md and DECISIONS.md.
   3. Scaffold the notes/ package and the tests/ folder.
   4. Implement add and list, with tests.
   5. Ask the human to run pytest and paste the output.
-  6. Later sessions: implement search and delete, fix test failures, write README.md.
 - Blockers / open questions: none
 - Key files: HANDOFF_PROTOCOL.md, PROJECT_STATE.md, PLAN_LOG.md, CHECKPOINTS.md, DECISIONS.md
 - Constraints:
