@@ -1,0 +1,84 @@
+﻿commit ed226d5f2fff1252c1aee9c718a7a560c0987258
+Author: mcp-agent <agent@localhost>
+Date:   Fri Oct 9 20:53:31 2026 +0800
+
+    S4: add CP-003 checkpoint and update PROJECT_STATE
+
+ CHECKPOINTS.md   | 17 +++++++++++++++++
+ PROJECT_STATE.md | 22 ++++++++++++----------
+ 2 files changed, 29 insertions(+), 10 deletions(-)
+
+commit 45a0eac70c3ff3643c1eac43cfd6979465520bb6
+Author: mcp-agent <agent@localhost>
+Date:   Fri Oct 9 20:53:13 2026 +0800
+
+    S4: reviewer findings recorded as D-005 (no code changes)
+
+ DECISIONS.md | 32 ++++++++++++++++++++++++++++++++
+ PLAN_LOG.md  | 17 +++++++++++++++++
+ 2 files changed, 49 insertions(+)
+
+commit 2a6b44dfc6d9e0eadc62dbf74fc72cf2052bbea7
+Author: mcp-agent <agent@localhost>
+Date:   Fri Oct 9 20:36:39 2026 +0800
+
+    S2: add CP-002 checkpoint and update PROJECT_STATE
+
+ CHECKPOINTS.md   | 18 ++++++++++++++++++
+ PROJECT_STATE.md | 36 +++++++++++++++++++-----------------
+ 2 files changed, 37 insertions(+), 17 deletions(-)
+
+commit 0083796b9b09c12f972afbfa5a56788fb6f26082
+Author: mcp-agent <agent@localhost>
+Date:   Fri Oct 9 20:36:24 2026 +0800
+
+    S2: implement search and delete with tests, add README
+
+ DECISIONS.md                |  19 ++++++
+ PLAN_LOG.md                 |  36 ++++++++++++
+ README.md                   |  73 +++++++++++++++++++++++
+ notes/cli.py                |  19 ++++++
+ notes/storage.py            |  20 +++++++
+ tests/test_search_delete.py | 138 ++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 305 insertions(+)
+
+commit 236413f62b74ee0aba87b543063953f5c897ab8a
+Author: mcp-agent <agent@localhost>
+Date:   Fri Oct 9 20:25:31 2026 +0800
+
+    S1: update PROJECT_STATE and add CP-001 checkpoint
+
+ CHECKPOINTS.md   | 15 +++++++++++++++
+ PROJECT_STATE.md | 34 +++++++++++++++++++---------------
+ 2 files changed, 34 insertions(+), 15 deletions(-)
+
+commit 547f9f82c0f565f27ce351935fa76c766de790d0
+Author: mcp-agent <agent@localhost>
+Date:   Fri Oct 9 20:25:12 2026 +0800
+
+    S1: scaffold notes package and tests, implement add and list
+
+ DECISIONS.md          | 19 ++++++++++++
+ PLAN_LOG.md           | 24 +++++++++++++++
+ notes/__init__.py     |  1 +
+ notes/__main__.py     |  6 ++++
+ notes/cli.py          | 36 ++++++++++++++++++++++
+ notes/storage.py      | 55 +++++++++++++++++++++++++++++++++
+ tests/__init__.py     |  0
+ tests/test_cli.py     | 58 +++++++++++++++++++++++++++++++++++
+ tests/test_storage.py | 85 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 9 files changed, 284 insertions(+)
+
+commit f1be653c291c7e31d48a35e267fea1fe38413396
+Author: mcp-agent <agent@localhost>
+Date:   Fri Oct 9 20:17:16 2026 +0800
+
+    Initial workspace
+
+ .gitignore          |  9 +++++++++
+ CHECKPOINTS.md      | 24 +++++++++++++++++++++++
+ DECISIONS.md        | 21 ++++++++++++++++++++
+ HANDOFF_PROTOCOL.md | 55 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ PLAN_LOG.md         | 24 +++++++++++++++++++++++
+ PROJECT_STATE.md    | 38 ++++++++++++++++++++++++++++++++++++
+ 6 files changed, 171 insertions(+)
