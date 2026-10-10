@@ -2,6 +2,7 @@ module.exports = {
   apps: [
     {
       name: "mcp-files",
+      cwd: __dirname,
       script: "dist/server.js",
       node_args: "--env-file=.env",
       autorestart: true,
