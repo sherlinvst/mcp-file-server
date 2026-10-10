@@ -77,7 +77,7 @@ const handleMcp = (mode: "bearer" | "secret") =>
     }));
 
     const server = new McpServer({ name: "mcp-file-server", version: "1.0.0" });
-    registerTools(server);
+    registerTools(server, mode);
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
     res.on("close", () => { transport.close(); server.close(); });
     await server.connect(transport);

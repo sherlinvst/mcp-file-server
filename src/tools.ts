@@ -4,13 +4,15 @@ import path from "node:path";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { resolveSafe, toRel, ROOT } from "./sandbox.js";
 import { git } from "./git.js";
+import { audit, clip, clipArgs, resultMax } from "./audit.js";
 
 const MAX_BYTES = 1_000_000;
 
+// Handoff files that can never be deleted
 const HANDOFF = new Set(
   ["PROJECT_STATE.md", "PLAN_LOG.md", "CHECKPOINTS.md", "DECISIONS.md"].map((n) => n.toLowerCase())
 );
-
+// Logs that may only grow: write_file and str_replace are refused, append_file is allowed.
 const APPEND_ONLY = new Set(
   ["PLAN_LOG.md", "CHECKPOINTS.md", "DECISIONS.md"].map((n) => n.toLowerCase())
 );
@@ -21,7 +23,7 @@ const fail = (e: unknown) => ({
   content: [{ type: "text" as const, text: e instanceof Error ? e.message : String(e) }],
 });
 
-
+// guards
 const canon = (abs: string) =>
   toRel(abs)
     .split(path.sep)
@@ -30,10 +32,12 @@ const canon = (abs: string) =>
 
 const inGit = (abs: string) => canon(abs).split("/")[0] === ".git";
 
+// no access to git
 const blockGit = (abs: string) => {
   if (inGit(abs)) throw new Error("Access to .git is not allowed");
 };
 
+// append only
 const blockAppendOnly = (abs: string) => {
   if (APPEND_ONLY.has(canon(abs))) {
     throw new Error("Append-only file: use append_file instead");
@@ -42,7 +46,40 @@ const blockAppendOnly = (abs: string) => {
 
 const isHandoff = (abs: string) => HANDOFF.has(canon(abs));
 
-export function registerTools(server: McpServer) {
+// audit
+function instrument(server: McpServer, auth: string): void {
+  const original = (server.registerTool as any).bind(server);
+  (server as any).registerTool = (name: string, config: unknown, handler: (...a: any[]) => Promise<any>) =>
+    original(name, config, async (...a: any[]) => {
+      const t0 = Date.now();
+      const first = a[0];
+      const isExtra = !!first && typeof first === "object" && ("signal" in first || "requestId" in first);
+      const args = first && !isExtra ? clipArgs(first) : {};
+      try {
+        const res = await handler(...a);
+        const text = ((res?.content ?? []) as any[]).map((c) => c?.text ?? "").join("\n");
+        audit({
+          ts: new Date().toISOString(), event: "tool_call", auth, tool: name, args,
+          isError: !!res?.isError, durationMs: Date.now() - t0,
+          resultChars: text.length, result: clip(text, resultMax()),
+        });
+        return res;
+      } catch (e) {
+        audit({
+          ts: new Date().toISOString(), event: "tool_call", auth, tool: name, args,
+          isError: true, durationMs: Date.now() - t0, resultChars: 0,
+          result: e instanceof Error ? e.message : String(e),
+        });
+        throw e;
+      }
+    });
+}
+
+// tools
+
+export function registerTools(server: McpServer, auth = "unknown") {
+  instrument(server, auth);
+
   // 1. list_files
   server.registerTool("list_files", {
     description: "List files and folders at a path inside the workspace. Folders end with '/'. Paths are relative to the workspace root; use '.' for the root.",

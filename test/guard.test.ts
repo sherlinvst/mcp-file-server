@@ -3,7 +3,6 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-// These tests call the real tool handlers against a throw-away workspace.
 type Result = { isError?: boolean; content: { text: string }[] };
 const tools: Record<string, (args: any) => Promise<Result>> = {};
 let ws: string;
@@ -17,7 +16,7 @@ const call = async (tool: string, args: Record<string, unknown> = {}) => {
 beforeAll(async () => {
   ws = fs.mkdtempSync(path.join(os.tmpdir(), "guards-ws-"));
   auditFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "guards-log-")), "calls.jsonl");
-  process.env.WORKSPACE_ROOT = ws;   // must be set BEFORE the modules are imported
+  process.env.WORKSPACE_ROOT = ws;  
   process.env.AUDIT_LOG = auditFile;
 
   fs.mkdirSync(path.join(ws, ".git"));
@@ -85,7 +84,7 @@ describe("audit log", () => {
     await call("write_file", { path: "big.txt", content: "A".repeat(1000) });
     const lines = fs.readFileSync(auditFile, "utf8").trim().split("\n").map((l) => JSON.parse(l));
 
-    // every call so far was logged (14 refused + 3 + 1 + 4 + 1 above, plus the one just made)
+    // every call so far was logged 
     expect(lines.length).toBeGreaterThanOrEqual(20);
     expect(lines.every((l) => l.event === "tool_call" && l.auth === "test")).toBe(true);
 
